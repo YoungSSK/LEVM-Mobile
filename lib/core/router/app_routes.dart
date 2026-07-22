@@ -18,4 +18,11 @@ class AppRoutes {
   static const String spelling = "/vocabulary/lessons/:lessonId/spelling";
   static const String levelResult = "/vocabulary/result/:attemptId";
   static const String lessonSummary = "/vocabulary/summary/:lessonId";
+
+  // Grammar routes
+  static const String grammarTopics = "/grammar/topics";
+  static const String grammarLessons = "/grammar/topics/:topicId/lessons";
+  static const String grammarTheory = "/grammar/lessons/:lessonId/theory";
+  static const String grammarQuiz = "/grammar/lessons/:lessonId/quiz";
+  static const String grammarResult = "/grammar/lessons/:lessonId/result";
 }

@@ -18,4 +18,11 @@ class RouteNames {
   static const String spelling = "spelling";
   static const String levelResult = "levelResult";
   static const String lessonSummary = "lessonSummary";
+
+  // Grammar route names
+  static const String grammarTopics = "grammarTopics";
+  static const String grammarLessons = "grammarLessons";
+  static const String grammarTheory = "grammarTheory";
+  static const String grammarQuiz = "grammarQuiz";
+  static const String grammarResult = "grammarResult";
 }

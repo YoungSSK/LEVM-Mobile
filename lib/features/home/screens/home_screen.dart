@@ -128,6 +128,16 @@ class _HomeBodyState extends ConsumerState<_HomeBody> {
           color: AppColors.brandPrimary,
         ),
         const SizedBox(height: 24),
+        _buildSectionHeader("Học ngữ pháp", Icons.spellcheck_rounded),
+        const SizedBox(height: 12),
+        _QuickActionCard(
+          icon: Icons.spellcheck_rounded,
+          title: "Chủ đề ngữ pháp",
+          subtitle: "Lý thuyết và bài trắc nghiệm",
+          onTap: () => context.push(AppRoutes.grammarTopics),
+          color: AppColors.brandSecondary,
+        ),
+        const SizedBox(height: 24),
         _buildSectionHeader("Hồ sơ", Icons.person_rounded),
         const SizedBox(height: 12),
         _QuickActionCard(
