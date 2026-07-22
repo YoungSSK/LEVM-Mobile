@@ -4,10 +4,12 @@ import 'package:flutter/foundation.dart';
 ///
 /// 1. `--dart-define=API_BASE_URL=https://...`  (e.g. for prod / staging / LAN)
 /// 2. Platform default:
-///     - `kIsWeb`         → http://localhost:5001/api
-///     - Android emulator → http://10.0.2.2:5001/api
-///     - iOS simulator    → http://localhost:5001/api
-///     - Windows / Mac    → http://localhost:5001/api
+///     - `kIsWeb`              → http://localhost:5001/api
+///     - Android emulator      → http://10.0.2.2:5001/api
+///                              (set --dart-define=FORCE_LOCALHOST_HOST=true
+///                               to force `localhost` instead)
+///     - iOS simulator         → http://localhost:5001/api
+///     - Windows / Mac desktop → http://localhost:5001/api
 class AppConfig {
   AppConfig._();
 
@@ -16,18 +18,20 @@ class AppConfig {
   static const String _overrideBaseUrl =
       String.fromEnvironment('API_BASE_URL');
 
-  /// Some Android emulators don't forward localhost. Set this to true to
-  /// force using the emulator-special host alias 10.0.2.2 instead.
-  ///   flutter run --dart-define=USE_ANDROID_EMULATOR_HOST=true
-  static const bool _useAndroidEmulatorHost =
-      bool.fromEnvironment('USE_ANDROID_EMULATOR_HOST');
+  /// Opt-out flag: Android emulator mặc định đã trỏ về `10.0.2.2` (alias của
+  /// `localhost` trên host). Bật flag này nếu bạn đang forward cổng kiểu
+  /// `adb reverse tcp:5001 tcp:5001` và muốn dùng `localhost` thay thế.
+  ///   flutter run --dart-define=FORCE_LOCALHOST_HOST=true
+  static const bool _forceLocalhostHost =
+      bool.fromEnvironment('FORCE_LOCALHOST_HOST');
 
-  /// Whether we should target the Android emulator host alias.
+  /// Mặc định Android emulator trỏ về 10.0.2.2 (host loopback) để tránh
+  /// "Connection refused" do emulator không forward `localhost` của máy host.
   static bool get _shouldUseEmulatorHost {
     if (_overrideBaseUrl.isNotEmpty) return false;
     if (kIsWeb) return false;
     if (defaultTargetPlatform != TargetPlatform.android) return false;
-    return _useAndroidEmulatorHost;
+    return !_forceLocalhostHost;
   }
 
   static String get baseUrl {

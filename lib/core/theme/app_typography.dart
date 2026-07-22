@@ -37,6 +37,13 @@ class AppTypography {
     height: 1.35,
   );
 
+  static const TextStyle headlineSmall = TextStyle(
+    fontFamily: fontFamily,
+    fontSize: 16,
+    fontWeight: FontWeight.w600,
+    height: 1.4,
+  );
+
   static const TextStyle titleLarge = TextStyle(
     fontFamily: fontFamily,
     fontSize: 16,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/providers/theme_provider.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_feedback.dart';
@@ -41,10 +42,38 @@ class ProfileScreen extends ConsumerWidget {
               slivers: [
                 SliverAppBar(
                   pinned: true,
-                  expandedHeight: 220,
+                  expandedHeight: 200,
                   backgroundColor: AppColors.brandPrimary,
                   foregroundColor: Colors.white,
+                  leading: IconButton(
+                    tooltip: "Quay lại",
+                    icon: const Icon(Icons.arrow_back_rounded),
+                    onPressed: () {
+                      if (context.canPop()) {
+                        context.pop();
+                      } else {
+                        context.go(AppRoutes.home);
+                      }
+                    },
+                  ),
                   actions: [
+                    Consumer(
+                      builder: (context, ref, _) {
+                        final themeMode = ref.watch(themeProvider);
+                        final isDark = themeMode == ThemeMode.dark ||
+                            (themeMode == ThemeMode.system &&
+                                MediaQuery.platformBrightnessOf(context) == Brightness.dark);
+                        return IconButton(
+                          tooltip: isDark ? "Chế độ sáng" : "Chế độ tối",
+                          icon: Icon(
+                            isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
+                          ),
+                          onPressed: () {
+                            ref.read(themeProvider.notifier).toggle();
+                          },
+                        );
+                      },
+                    ),
                     IconButton(
                       tooltip: "Đăng xuất",
                       icon: const Icon(Icons.logout_rounded),
@@ -52,15 +81,20 @@ class ProfileScreen extends ConsumerWidget {
                     ),
                   ],
                   flexibleSpace: FlexibleSpaceBar(
+                    titlePadding: const EdgeInsetsDirectional.only(
+                      start: 56,
+                      end: 56,
+                      bottom: 14,
+                    ),
                     title: Text(
                       "Hồ sơ của tôi",
                       style: AppTypography.titleLarge.copyWith(
                         color: Colors.white,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     centerTitle: false,
-                    titlePadding:
-                        const EdgeInsetsDirectional.only(start: 20, bottom: 16),
                     background: _ProfileHeaderBackground(user: user),
                   ),
                 ),
@@ -160,10 +194,12 @@ class _ProfileHeaderBackground extends StatelessWidget {
           end: Alignment.bottomRight,
         ),
       ),
+      // Chừa khoảng đáy cho title "Hồ sơ của tôi" của FlexibleSpaceBar
+      // khi SliverAppBar ở trạng thái collapsed — tránh title đè lên avatar.
       child: SafeArea(
         bottom: false,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 56, 20, 16),
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 48),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -188,6 +224,8 @@ class _ProfileHeaderBackground extends StatelessWidget {
                       style: AppTypography.bodyMedium.copyWith(
                         color: Colors.white.withValues(alpha: 0.85),
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),

@@ -203,7 +203,9 @@ class XpProgressBar extends StatelessWidget {
   }
 }
 
-/// Mini 7-day streak calendar (Mon-Sun) — fills days equal to `streak % 7`.
+/// Mini 7-day streak calendar (Mon-Sun) — fills days from Mon up to the current weekday.
+/// Example (Wed, streak started Wed): T2, T3 empty, T4 highlight, T5-T7 and CN empty
+/// Example (Thu, streak started Wed): T2, T3 empty, T4, T5 highlight, T6, T7, CN empty
 /// This is a pure visual cue; backend only stores total streak count.
 class StreakCalendar extends StatelessWidget {
   final int streak;
@@ -212,12 +214,17 @@ class StreakCalendar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final filled = (streak % 7);
+    // DateTime.weekday: 1 = Monday ... 7 = Sunday
+    final today = DateTime.now().weekday;
     final days = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"];
+
+    // Số ngày đã học trong tuần này, giới hạn bởi streak và today
+    final daysInWeek = streak <= 0 ? 0 : (today > streak ? streak : today);
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: List.generate(7, (i) {
-        final active = i < filled;
+        final active = i < daysInWeek;
         return Column(
           children: [
             AnimatedContainer(

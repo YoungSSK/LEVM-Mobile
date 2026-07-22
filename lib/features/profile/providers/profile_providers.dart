@@ -74,6 +74,15 @@ class CurrentUserNotifier extends AsyncNotifier<UserModel?> {
     if (current == null) return;
     state = AsyncData(updater(current));
   }
+
+  /// Refresh user data (gọi sau khi hoàn thành bài học để cập nhật streak/XP).
+  Future<void> refreshUserData() async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      final api = ref.read(profileApiProvider);
+      return api.getMe();
+    });
+  }
 }
 
 final currentUserProvider =

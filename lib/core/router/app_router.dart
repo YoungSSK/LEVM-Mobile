@@ -7,6 +7,14 @@ import '../../features/home/screens/home_screen.dart';
 import '../../features/profile/presentation/change_password_screen.dart';
 import '../../features/profile/presentation/edit_profile_screen.dart';
 import '../../features/profile/presentation/profile_screen.dart';
+import '../../features/vocabulary/presentation/screens/vocabulary_topics_screen.dart';
+import '../../features/vocabulary/presentation/screens/vocabulary_lessons_screen.dart';
+import '../../features/vocabulary/presentation/screens/lesson_detail_screen.dart';
+import '../../features/vocabulary/presentation/screens/flashcard_screen.dart';
+import '../../features/vocabulary/presentation/screens/word_recall_screen.dart';
+import '../../features/vocabulary/presentation/screens/spelling_screen.dart';
+import '../../features/vocabulary/presentation/screens/level_result_screen.dart';
+import '../../features/vocabulary/presentation/screens/lesson_summary_screen.dart';
 import 'app_routes.dart';
 import 'route_names.dart';
 
@@ -77,6 +85,60 @@ class AppRouter {
           path: AppRoutes.changePassword,
           name: RouteNames.changePassword,
           builder: (context, state) => const ChangePasswordScreen(),
+        ),
+        // Vocabulary routes
+        GoRoute(
+          path: AppRoutes.vocabularyTopics,
+          builder: (context, state) => const VocabularyTopicsScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.vocabularyLessons,
+          builder: (context, state) {
+            final topicId = state.pathParameters['topicId'] ?? '';
+            return VocabularyLessonsScreen(topicId: topicId);
+          },
+        ),
+        GoRoute(
+          path: AppRoutes.lessonDetail,
+          builder: (context, state) {
+            final lessonId = state.pathParameters['lessonId'] ?? '';
+            return LessonDetailScreen(lessonId: lessonId);
+          },
+        ),
+        GoRoute(
+          path: AppRoutes.flashcard,
+          builder: (context, state) {
+            final lessonId = state.pathParameters['lessonId'] ?? '';
+            return FlashcardScreen(lessonId: lessonId);
+          },
+        ),
+        GoRoute(
+          path: AppRoutes.wordRecall,
+          builder: (context, state) {
+            final lessonId = state.pathParameters['lessonId'] ?? '';
+            return WordRecallScreen(lessonId: lessonId);
+          },
+        ),
+        GoRoute(
+          path: AppRoutes.spelling,
+          builder: (context, state) {
+            final lessonId = state.pathParameters['lessonId'] ?? '';
+            return SpellingScreen(lessonId: lessonId);
+          },
+        ),
+        GoRoute(
+          path: AppRoutes.levelResult,
+          builder: (context, state) {
+            final attemptId = state.pathParameters['attemptId'] ?? '';
+            return LevelResultScreen(attemptId: attemptId);
+          },
+        ),
+        GoRoute(
+          path: AppRoutes.lessonSummary,
+          builder: (context, state) {
+            final lessonId = state.pathParameters['lessonId'] ?? '';
+            return LessonSummaryScreen(lessonId: lessonId);
+          },
         ),
       ],
     );
