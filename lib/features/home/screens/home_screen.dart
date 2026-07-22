@@ -7,6 +7,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../profile/models/user_model.dart';
 import '../../profile/providers/profile_providers.dart';
+import '../../vocabulary/providers/xp_streak_provider.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -43,12 +44,27 @@ class HomeScreen extends ConsumerWidget {
   }
 }
 
-class _HomeBody extends StatelessWidget {
+class _HomeBody extends ConsumerStatefulWidget {
   final UserModel user;
   const _HomeBody({required this.user});
 
   @override
+  ConsumerState<_HomeBody> createState() => _HomeBodyState();
+}
+
+class _HomeBodyState extends ConsumerState<_HomeBody> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(xpStreakProvider.notifier).loadXpAndStreak();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final xpStreakState = ref.watch(xpStreakProvider);
+
     return ListView(
       children: [
         Container(
@@ -68,7 +84,7 @@ class _HomeBody extends StatelessWidget {
               ),
               const SizedBox(height: 6),
               Text(
-                user.displayName,
+                widget.user.displayName,
                 style: AppTypography.displayMedium.copyWith(
                   color: Colors.white,
                 ),
@@ -82,7 +98,7 @@ class _HomeBody extends StatelessWidget {
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    "Streak: ${user.streak}",
+                    "Streak: ${xpStreakState.streakInfo?.currentStreak ?? widget.user.streak}",
                     style: AppTypography.titleMedium.copyWith(
                       color: Colors.white,
                     ),
@@ -91,7 +107,7 @@ class _HomeBody extends StatelessWidget {
                   const Icon(Icons.star_rounded, color: Colors.white),
                   const SizedBox(width: 6),
                   Text(
-                    "${user.xp} XP",
+                    "${xpStreakState.xpInfo?.totalXp ?? widget.user.xp} XP",
                     style: AppTypography.titleMedium.copyWith(
                       color: Colors.white,
                     ),
@@ -102,11 +118,24 @@ class _HomeBody extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 24),
+        _buildSectionHeader("Học từ vựng", Icons.school_rounded),
+        const SizedBox(height: 12),
+        _QuickActionCard(
+          icon: Icons.book_rounded,
+          title: "Chủ đề từ vựng",
+          subtitle: "Học từ theo chủ đề ngành nghề",
+          onTap: () => context.push(AppRoutes.vocabularyTopics),
+          color: AppColors.brandPrimary,
+        ),
+        const SizedBox(height: 24),
+        _buildSectionHeader("Hồ sơ", Icons.person_rounded),
+        const SizedBox(height: 12),
         _QuickActionCard(
           icon: Icons.person_rounded,
           title: "Hồ sơ cá nhân",
           subtitle: "Cập nhật thông tin, đổi avatar, chỉnh sửa giới thiệu…",
           onTap: () => context.push(AppRoutes.profile),
+          color: AppColors.info,
         ),
         const SizedBox(height: 12),
         _QuickActionCard(
@@ -114,6 +143,22 @@ class _HomeBody extends StatelessWidget {
           title: "Đổi mật khẩu",
           subtitle: "Bảo mật tài khoản của bạn.",
           onTap: () => context.push(AppRoutes.changePassword),
+          color: AppColors.warning,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSectionHeader(String title, IconData icon) {
+    return Row(
+      children: [
+        Icon(icon, size: 20, color: AppColors.brandPrimary),
+        const SizedBox(width: 8),
+        Text(
+          title,
+          style: AppTypography.titleMedium.copyWith(
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ],
     );
@@ -133,12 +178,14 @@ class _QuickActionCard extends StatelessWidget {
   final String title;
   final String subtitle;
   final VoidCallback onTap;
+  final Color color;
 
   const _QuickActionCard({
     required this.icon,
     required this.title,
     required this.subtitle,
     required this.onTap,
+    required this.color,
   });
 
   @override
@@ -162,10 +209,10 @@ class _QuickActionCard extends StatelessWidget {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: AppColors.brandPrimary.withValues(alpha: 0.12),
+                  color: color.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: Icon(icon, color: AppColors.brandPrimary),
+                child: Icon(icon, color: color),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -183,7 +230,7 @@ class _QuickActionCard extends StatelessWidget {
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right_rounded),
+              Icon(Icons.chevron_right_rounded, color: color),
             ],
           ),
         ),

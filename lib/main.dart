@@ -1,6 +1,9 @@
+import 'package:device_preview/device_preview.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'core/providers/theme_provider.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/providers/auth_notifier.dart';
@@ -10,8 +13,11 @@ final _router = AppRouter.build();
 
 void main() {
   runApp(
-    ProviderScope(
-      child: const LEVMApp(),
+    DevicePreview(
+      enabled: !kReleaseMode,
+      builder: (context) => ProviderScope(
+        child: const LEVMApp(),
+      ),
     ),
   );
 }
@@ -32,6 +38,8 @@ class _LEVMAppState extends ConsumerState<LEVMApp> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // Bootstrap auth state and wire the router refresh listener.
       ref.read(authNotifierProvider.notifier).bootstrap();
+      // Load saved theme preference
+      ref.read(themeProvider.notifier).load();
       _authSub = ref.listenManual<AuthState>(
         authNotifierProvider,
         (previous, next) {
@@ -51,12 +59,17 @@ class _LEVMAppState extends ConsumerState<LEVMApp> {
 
   @override
   Widget build(BuildContext context) {
+    final themeMode = ref.watch(themeProvider);
+
     return MaterialApp.router(
       title: "LEVM",
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
-      themeMode: ThemeMode.system,
+      themeMode: themeMode,
+      useInheritedMediaQuery: true,
+      locale: DevicePreview.locale(context),
+      builder: DevicePreview.appBuilder,
       routerConfig: _router,
     );
   }
