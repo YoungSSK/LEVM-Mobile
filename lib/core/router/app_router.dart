@@ -15,6 +15,11 @@ import '../../features/vocabulary/presentation/screens/word_recall_screen.dart';
 import '../../features/vocabulary/presentation/screens/spelling_screen.dart';
 import '../../features/vocabulary/presentation/screens/level_result_screen.dart';
 import '../../features/vocabulary/presentation/screens/lesson_summary_screen.dart';
+import '../../features/grammar/presentation/screens/grammar_topics_screen.dart';
+import '../../features/grammar/presentation/screens/grammar_lessons_screen.dart';
+import '../../features/grammar/presentation/screens/grammar_theory_screen.dart';
+import '../../features/grammar/presentation/screens/grammar_quiz_screen.dart';
+import '../../features/grammar/presentation/screens/grammar_result_screen.dart';
 import 'app_routes.dart';
 import 'route_names.dart';
 
@@ -138,6 +143,39 @@ class AppRouter {
           builder: (context, state) {
             final lessonId = state.pathParameters['lessonId'] ?? '';
             return LessonSummaryScreen(lessonId: lessonId);
+          },
+        ),
+        // Grammar routes
+        GoRoute(
+          path: AppRoutes.grammarTopics,
+          builder: (context, state) => const GrammarTopicsScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.grammarLessons,
+          builder: (context, state) {
+            final topicId = state.pathParameters['topicId'] ?? '';
+            return GrammarLessonsScreen(topicId: topicId);
+          },
+        ),
+        GoRoute(
+          path: AppRoutes.grammarTheory,
+          builder: (context, state) {
+            final lessonId = state.pathParameters['lessonId'] ?? '';
+            return GrammarTheoryScreen(lessonId: lessonId);
+          },
+        ),
+        GoRoute(
+          path: AppRoutes.grammarQuiz,
+          builder: (context, state) {
+            final lessonId = state.pathParameters['lessonId'] ?? '';
+            return GrammarQuizScreen(lessonId: lessonId);
+          },
+        ),
+        GoRoute(
+          path: AppRoutes.grammarResult,
+          builder: (context, state) {
+            final lessonId = state.pathParameters['lessonId'] ?? '';
+            return GrammarResultScreen(lessonId: lessonId);
           },
         ),
       ],
