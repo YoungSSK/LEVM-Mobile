@@ -7,7 +7,6 @@ import '../../../core/router/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_feedback.dart';
 import '../../../core/theme/app_typography.dart';
-import '../../../core/widgets/badges.dart';
 import '../../../core/widgets/gamification.dart';
 import '../../../core/widgets/levm_avatar.dart';
 import '../../auth/providers/auth_notifier.dart';
@@ -106,26 +105,7 @@ class ProfileScreen extends ConsumerWidget {
                       children: [
                         _IdentityCard(user: user, isAdmin: auth.role == "admin"),
                         const SizedBox(height: 24),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: StreakBadge(streak: user.streak),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: XpProgressBar(xp: user.xp),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        if (user.streak > 0) ...[
-                          _Card(
-                            title: "Chuỗi ngày học",
-                            child: StreakCalendar(streak: user.streak),
-                          ),
-                          const SizedBox(height: 16),
-                        ],
-                        const BadgeStrip(),
+                        XpProgressBar(xp: user.xp),
                         const SizedBox(height: 16),
                         _OccupationCard(user: user),
                         const SizedBox(height: 16),

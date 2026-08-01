@@ -138,6 +138,16 @@ class _HomeBodyState extends ConsumerState<_HomeBody> {
           color: AppColors.brandSecondary,
         ),
         const SizedBox(height: 24),
+        _buildSectionHeader("Luyện đọc hiểu", Icons.menu_book_rounded),
+        const SizedBox(height: 12),
+        _QuickActionCard(
+          icon: Icons.menu_book_rounded,
+          title: "Bài đọc hiểu",
+          subtitle: "Đọc bài học, tra từ vựng & làm quiz",
+          onTap: () => context.push(AppRoutes.readingLibrary),
+          color: AppColors.brandTertiary,
+        ),
+        const SizedBox(height: 24),
         _buildSectionHeader("Hồ sơ", Icons.person_rounded),
         const SizedBox(height: 12),
         _QuickActionCard(
@@ -146,14 +156,6 @@ class _HomeBodyState extends ConsumerState<_HomeBody> {
           subtitle: "Cập nhật thông tin, đổi avatar, chỉnh sửa giới thiệu…",
           onTap: () => context.push(AppRoutes.profile),
           color: AppColors.info,
-        ),
-        const SizedBox(height: 12),
-        _QuickActionCard(
-          icon: Icons.lock_reset_rounded,
-          title: "Đổi mật khẩu",
-          subtitle: "Bảo mật tài khoản của bạn.",
-          onTap: () => context.push(AppRoutes.changePassword),
-          color: AppColors.warning,
         ),
       ],
     );

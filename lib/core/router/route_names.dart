@@ -25,4 +25,10 @@ class RouteNames {
   static const String grammarTheory = "grammarTheory";
   static const String grammarQuiz = "grammarQuiz";
   static const String grammarResult = "grammarResult";
+
+  // Reading route names
+  static const String readingLibrary = "readingLibrary";
+  static const String readingDetail = "readingDetail";
+  static const String readingQuiz = "readingQuiz";
+  static const String readingResult = "readingResult";
 }

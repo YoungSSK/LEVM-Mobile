@@ -20,6 +20,10 @@ import '../../features/grammar/presentation/screens/grammar_lessons_screen.dart'
 import '../../features/grammar/presentation/screens/grammar_theory_screen.dart';
 import '../../features/grammar/presentation/screens/grammar_quiz_screen.dart';
 import '../../features/grammar/presentation/screens/grammar_result_screen.dart';
+import '../../features/reading/presentation/screens/reading_library_screen.dart';
+import '../../features/reading/presentation/screens/reading_detail_screen.dart';
+import '../../features/reading/presentation/screens/reading_quiz_screen.dart';
+import '../../features/reading/presentation/screens/reading_result_screen.dart';
 import 'app_routes.dart';
 import 'route_names.dart';
 
@@ -176,6 +180,36 @@ class AppRouter {
           builder: (context, state) {
             final lessonId = state.pathParameters['lessonId'] ?? '';
             return GrammarResultScreen(lessonId: lessonId);
+          },
+        ),
+        // Reading routes
+        GoRoute(
+          path: AppRoutes.readingLibrary,
+          name: RouteNames.readingLibrary,
+          builder: (context, state) => const ReadingLibraryScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.readingDetail,
+          name: RouteNames.readingDetail,
+          builder: (context, state) {
+            final passageId = state.pathParameters['passageId'] ?? '';
+            return ReadingDetailScreen(passageId: passageId);
+          },
+        ),
+        GoRoute(
+          path: AppRoutes.readingQuiz,
+          name: RouteNames.readingQuiz,
+          builder: (context, state) {
+            final passageId = state.pathParameters['passageId'] ?? '';
+            return ReadingQuizScreen(passageId: passageId);
+          },
+        ),
+        GoRoute(
+          path: AppRoutes.readingResult,
+          name: RouteNames.readingResult,
+          builder: (context, state) {
+            final attemptId = state.pathParameters['attemptId'] ?? '';
+            return ReadingResultScreen(attemptId: attemptId);
           },
         ),
       ],
