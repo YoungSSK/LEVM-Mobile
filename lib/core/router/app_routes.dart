@@ -25,4 +25,10 @@ class AppRoutes {
   static const String grammarTheory = "/grammar/lessons/:lessonId/theory";
   static const String grammarQuiz = "/grammar/lessons/:lessonId/quiz";
   static const String grammarResult = "/grammar/lessons/:lessonId/result";
+
+  // Reading routes
+  static const String readingLibrary = "/reading/library";
+  static const String readingDetail = "/reading/passages/:passageId";
+  static const String readingQuiz = "/reading/passages/:passageId/quiz";
+  static const String readingResult = "/reading/result/:attemptId";
 }
