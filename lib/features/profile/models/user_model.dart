@@ -25,6 +25,10 @@ class UserModel {
   final int streak;
   final int xp;
   final UserRole role;
+  final String? packageName;
+  final String? packageSlug;
+  final int packageLevel;
+  final DateTime? packageExpiresAt;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -43,6 +47,10 @@ class UserModel {
     this.streak = 0,
     this.xp = 0,
     this.role = UserRole.user,
+    this.packageName,
+    this.packageSlug,
+    this.packageLevel = 0,
+    this.packageExpiresAt,
     this.createdAt,
     this.updatedAt,
   });
@@ -141,6 +149,16 @@ class UserModel {
       return int.tryParse((v ?? "0").toString()) ?? 0;
     }
 
+    String? packageName;
+    String? packageSlug;
+    int packageLevel = 0;
+    final rawPkg = json["currentPackageId"];
+    if (rawPkg is Map) {
+      packageName = readString(rawPkg["name"]);
+      packageSlug = readString(rawPkg["slug"]);
+      packageLevel = readInt(rawPkg["level"]);
+    }
+
     return UserModel(
       id: id,
       username: username,
@@ -156,6 +174,10 @@ class UserModel {
       streak: readInt(json["streak"]),
       xp: readInt(json["xp"]),
       role: UserRole.fromString(json["role"]?.toString()),
+      packageName: packageName,
+      packageSlug: packageSlug,
+      packageLevel: packageLevel,
+      packageExpiresAt: DateTime.tryParse(json["packageExpiresAt"]?.toString() ?? ""),
       createdAt: DateTime.tryParse(json["createdAt"]?.toString() ?? ""),
       updatedAt: DateTime.tryParse(json["updatedAt"]?.toString() ?? ""),
     );

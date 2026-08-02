@@ -104,6 +104,8 @@ class ProfileScreen extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         _IdentityCard(user: user, isAdmin: auth.role == "admin"),
+                        const SizedBox(height: 16),
+                        _MembershipCard(user: user),
                         const SizedBox(height: 24),
                         XpProgressBar(xp: user.xp),
                         const SizedBox(height: 16),
@@ -528,6 +530,141 @@ class _ErrorState extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _MembershipCard extends StatelessWidget {
+  final UserModel user;
+  const _MembershipCard({required this.user});
+
+  @override
+  Widget build(BuildContext context) {
+    final packageName = user.packageName ?? "Gói Free";
+    final isVip = user.packageLevel > 0;
+    final expiresAt = user.packageExpiresAt;
+
+    String expireText = "Thời hạn: Vĩnh viễn";
+    if (expiresAt != null) {
+      expireText =
+          "Hết hạn: ${expiresAt.day.toString().padLeft(2, '0')}/${expiresAt.month.toString().padLeft(2, '0')}/${expiresAt.year}";
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: isVip
+              ? [const Color(0xFF2C1460), const Color(0xFF4A154B)]
+              : [const Color(0xFF1E293B), const Color(0xFF0F172A)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: (isVip ? Colors.purple : Colors.black).withValues(alpha: 0.15),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: isVip
+                      ? Colors.amber.withValues(alpha: 0.2)
+                      : Colors.white.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  isVip ? Icons.stars_rounded : Icons.card_membership_rounded,
+                  color: isVip ? Colors.amber : Colors.white70,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          packageName,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 17,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        if (isVip) ...[
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.amber,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              "VIP Lv.${user.packageLevel}",
+                              style: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      expireText,
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.7),
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () => context.push(AppRoutes.membership),
+              icon: Icon(
+                isVip ? Icons.workspace_premium_rounded : Icons.star_rounded,
+                size: 18,
+              ),
+              label: Text(
+                isVip ? "Gia hạn / Nâng cấp gói" : "Nâng cấp VIP ngay",
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: isVip ? Colors.amber : AppColors.brandPrimary,
+                foregroundColor: isVip ? Colors.black : Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

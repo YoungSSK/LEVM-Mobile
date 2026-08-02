@@ -24,6 +24,7 @@ import '../../features/reading/presentation/screens/reading_library_screen.dart'
 import '../../features/reading/presentation/screens/reading_detail_screen.dart';
 import '../../features/reading/presentation/screens/reading_quiz_screen.dart';
 import '../../features/reading/presentation/screens/reading_result_screen.dart';
+import '../../features/membership/presentation/screens/membership_screen.dart';
 import 'app_routes.dart';
 import 'route_names.dart';
 
@@ -211,6 +212,11 @@ class AppRouter {
             final attemptId = state.pathParameters['attemptId'] ?? '';
             return ReadingResultScreen(attemptId: attemptId);
           },
+        ),
+        // Membership route
+        GoRoute(
+          path: AppRoutes.membership,
+          builder: (context, state) => const MembershipScreen(),
         ),
       ],
     );
