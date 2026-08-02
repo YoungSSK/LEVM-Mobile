@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/config/app_config.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../models/vocabulary_models.dart';
 import '../../providers/vocabulary_providers.dart';
 
 class VocabularyLessonsScreen extends ConsumerWidget {
@@ -89,7 +91,7 @@ class VocabularyLessonsScreen extends ConsumerWidget {
 }
 
 class _LessonCard extends StatelessWidget {
-  final dynamic lesson;
+  final VocabularyLessonModel lesson;
 
   const _LessonCard({required this.lesson});
 
@@ -114,19 +116,7 @@ class _LessonCard extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  color: AppColors.brandPrimary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: const Icon(
-                  Icons.article_rounded,
-                  color: AppColors.brandPrimary,
-                  size: 28,
-                ),
-              ),
+              _buildLessonIcon(lesson),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
@@ -175,6 +165,85 @@ class _LessonCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _buildLessonIcon(VocabularyLessonModel lesson) {
+    final rawThumbnail = lesson.thumbnail;
+    final hasThumbnail = rawThumbnail != null && rawThumbnail.trim().isNotEmpty;
+
+    final defaultIcon = Container(
+      width: 56,
+      height: 56,
+      decoration: BoxDecoration(
+        color: AppColors.brandPrimary.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: const Icon(
+        Icons.article_rounded,
+        color: AppColors.brandPrimary,
+        size: 28,
+      ),
+    );
+
+    if (!hasThumbnail) return defaultIcon;
+
+    final resolvedUrl = _resolveImageUrl(rawThumbnail);
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(16),
+      child: SizedBox(
+        width: 56,
+        height: 56,
+        child: Image.network(
+          resolvedUrl,
+          width: 56,
+          height: 56,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) => defaultIcon,
+          loadingBuilder: (context, child, loadingProgress) {
+            if (loadingProgress == null) return child;
+            return Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(
+                color: AppColors.brandPrimary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: const Center(
+                child: SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  static String _resolveImageUrl(String rawUrl) {
+    String url = rawUrl.trim();
+    if (url.isEmpty) return '';
+
+    final apiBase = AppConfig.baseUrl;
+    if (apiBase.contains('10.0.2.2')) {
+      url = url.replaceAll('localhost', '10.0.2.2').replaceAll('127.0.0.1', '10.0.2.2');
+    }
+
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+
+    final origin = apiBase.endsWith('/api')
+        ? apiBase.substring(0, apiBase.length - 4)
+        : apiBase;
+
+    if (url.startsWith('/')) {
+      return '$origin$url';
+    }
+    return '$origin/$url';
   }
 }
 

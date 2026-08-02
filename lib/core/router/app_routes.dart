@@ -31,4 +31,7 @@ class AppRoutes {
   static const String readingDetail = "/reading/passages/:passageId";
   static const String readingQuiz = "/reading/passages/:passageId/quiz";
   static const String readingResult = "/reading/result/:attemptId";
+
+  // Membership routes
+  static const String membership = "/membership";
 }

@@ -47,6 +47,9 @@ dependencies:
   logger: ^2.7.0
   image_picker: ^1.1.2
 
+  # Membership / Payment
+  url_launcher: ^6.3.1  # Mở URL thanh toán VNPay
+
   # Vocabulary learning & gamification
   just_audio: ^0.9.43
   audio_session: ^0.1.25

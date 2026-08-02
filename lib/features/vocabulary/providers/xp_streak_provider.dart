@@ -82,7 +82,6 @@ class XpStreakNotifier extends Notifier<XpStreakState> {
     final currentXp = state.xpInfo!.totalXp;
     final newXp = currentXp + addedXp;
     final newLevel = (newXp ~/ state.xpInfo!.xpPerLevel) + 1;
-    final currentLevel = state.xpInfo!.currentLevel;
 
     final newXpInfo = XpInfoModel(
       totalXp: newXp,

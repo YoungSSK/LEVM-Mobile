@@ -29,7 +29,7 @@ class VocabularyTopicModel {
       name: (json["name"] ?? "").toString(),
       slug: (json["slug"] ?? "").toString(),
       description: _stringOrNull(json["description"]),
-      thumbnail: _stringOrNull(json["thumbnail"]),
+      thumbnail: _stringOrNull(json["thumbnail"] ?? json["thumbnailUrl"] ?? json["imageUrl"] ?? json["image"]),
       lessonCount: _intOrDefault(json["lessonCount"]),
       wordCount: _intOrDefault(json["wordCount"]),
       order: _intOrDefault(json["order"]),
