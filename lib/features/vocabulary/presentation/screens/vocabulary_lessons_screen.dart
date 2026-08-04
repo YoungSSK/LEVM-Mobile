@@ -8,6 +8,9 @@ import '../../../../core/theme/app_typography.dart';
 import '../../models/vocabulary_models.dart';
 import '../../providers/vocabulary_providers.dart';
 
+import '../../../../core/widgets/vip_access_guard.dart';
+import '../../../membership/providers/membership_provider.dart';
+
 class VocabularyLessonsScreen extends ConsumerWidget {
   final String topicId;
 
@@ -90,75 +93,163 @@ class VocabularyLessonsScreen extends ConsumerWidget {
   }
 }
 
-class _LessonCard extends StatelessWidget {
+class _LessonCard extends ConsumerWidget {
   final VocabularyLessonModel lesson;
 
   const _LessonCard({required this.lesson});
 
   @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Theme.of(context).colorScheme.surface,
-      borderRadius: BorderRadius.circular(20),
-      elevation: 0,
-      child: InkWell(
+  Widget build(BuildContext context, WidgetRef ref) {
+    final rawThumbnail = lesson.thumbnail;
+    final hasThumbnail = rawThumbnail != null && rawThumbnail.trim().isNotEmpty;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final membershipState = ref.watch(membershipNotifierProvider);
+    final subscription = membershipState.currentSubscription;
+
+    final isVip = VipAccessHelper.isVipLesson(lesson.allowedPackageIds);
+    final hasAccess = VipAccessHelper.hasAccess(
+      subscription: subscription,
+      allowedPackageIds: lesson.allowedPackageIds,
+    );
+    final isLocked = isVip && !hasAccess;
+    final requiredPackage = VipAccessHelper.getRequiredPackageName(lesson.allowedPackageIds);
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
-        onTap: () {
-          context.push("/vocabulary/lessons/${lesson.id}");
-        },
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: Theme.of(context).dividerColor,
-            ),
+        border: Border.all(
+          color: isLocked
+              ? Colors.amber.withValues(alpha: 0.6)
+              : Theme.of(context).dividerColor.withValues(alpha: 0.7),
+          width: isLocked ? 1.5 : 1.0,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
-          child: Row(
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(20),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: () {
+            if (isLocked) {
+              VipAccessHelper.showVipLockedToast(
+                context,
+                requiredPackageName: requiredPackage,
+              );
+            } else {
+              context.push("/vocabulary/lessons/${lesson.id}");
+            }
+          },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildLessonIcon(lesson),
-              const SizedBox(width: 16),
-              Expanded(
+              // Top Image Banner
+              if (hasThumbnail)
+                ClipRRect(
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                  child: AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: Image.network(
+                      _resolveImageUrl(rawThumbnail),
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => _buildDefaultBanner(),
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Container(
+                          color: AppColors.brandPrimary.withValues(alpha: 0.08),
+                          child: const Center(
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                )
+              else
+                _buildDefaultBanner(),
+
+              // Card Content Below
+              Padding(
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      lesson.title,
-                      style: AppTypography.titleMedium,
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Row(
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  lesson.title,
+                                  style: AppTypography.titleMedium.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 17,
+                                  ),
+                                ),
+                              ),
+                              if (isVip) ...[
+                                const SizedBox(width: 8),
+                                VipLockBadge(packageName: requiredPackage, compact: true),
+                              ],
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: AppColors.brandPrimary.withValues(alpha: 0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.arrow_forward_rounded,
+                            size: 18,
+                            color: AppColors.brandPrimary,
+                          ),
+                        ),
+                      ],
                     ),
                     if (lesson.description != null && lesson.description!.isNotEmpty) ...[
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 6),
                       Text(
                         lesson.description!,
-                        style: AppTypography.bodySmall.copyWith(
+                        style: AppTypography.bodyMedium.copyWith(
                           color: Theme.of(context).hintColor,
+                          height: 1.4,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 14),
                     Row(
                       children: [
                         _InfoChip(
                           icon: Icons.text_fields_rounded,
-                          label: "${lesson.wordCount} từ",
+                          label: "${lesson.wordCount} từ vựng",
                         ),
                         if (lesson.estimatedTime > 0) ...[
-                          const SizedBox(width: 12),
+                          const SizedBox(width: 10),
                           _InfoChip(
                             icon: Icons.timer_outlined,
-                            label: "${lesson.estimatedTime} phút",
+                            label: "${lesson.estimatedTime} phút học",
                           ),
                         ],
                       ],
                     ),
                   ],
                 ),
-              ),
-              const Icon(
-                Icons.chevron_right_rounded,
-                color: AppColors.brandPrimary,
               ),
             ],
           ),
@@ -167,57 +258,23 @@ class _LessonCard extends StatelessWidget {
     );
   }
 
-  Widget _buildLessonIcon(VocabularyLessonModel lesson) {
-    final rawThumbnail = lesson.thumbnail;
-    final hasThumbnail = rawThumbnail != null && rawThumbnail.trim().isNotEmpty;
-
-    final defaultIcon = Container(
-      width: 56,
-      height: 56,
-      decoration: BoxDecoration(
-        color: AppColors.brandPrimary.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(16),
+  Widget _buildDefaultBanner() {
+    return Container(
+      height: 140,
+      width: double.infinity,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: AppColors.brandGradient,
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      child: const Icon(
-        Icons.article_rounded,
-        color: AppColors.brandPrimary,
-        size: 28,
-      ),
-    );
-
-    if (!hasThumbnail) return defaultIcon;
-
-    final resolvedUrl = _resolveImageUrl(rawThumbnail);
-
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
-      child: SizedBox(
-        width: 56,
-        height: 56,
-        child: Image.network(
-          resolvedUrl,
-          width: 56,
-          height: 56,
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) => defaultIcon,
-          loadingBuilder: (context, child, loadingProgress) {
-            if (loadingProgress == null) return child;
-            return Container(
-              width: 56,
-              height: 56,
-              decoration: BoxDecoration(
-                color: AppColors.brandPrimary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: const Center(
-                child: SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
-              ),
-            );
-          },
+      child: const Center(
+        child: Icon(
+          Icons.article_rounded,
+          color: Colors.white,
+          size: 48,
         ),
       ),
     );

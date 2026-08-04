@@ -93,54 +93,115 @@ class _TopicCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Theme.of(context).colorScheme.surface,
-      borderRadius: BorderRadius.circular(20),
-      elevation: 0,
-      child: InkWell(
+    final rawThumbnail = topic.thumbnail;
+    final hasThumbnail = rawThumbnail != null && rawThumbnail.trim().isNotEmpty;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
-        onTap: () {
-          context.push(AppRoutes.vocabularyLessons.replaceFirst(":topicId", topic.id));
-        },
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: Theme.of(context).dividerColor,
-            ),
+        border: Border.all(
+          color: Theme.of(context).dividerColor.withValues(alpha: 0.7),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
-          child: Row(
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(20),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: () {
+            context.push(AppRoutes.vocabularyLessons.replaceFirst(":topicId", topic.id));
+          },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildTopicIcon(topic),
-              const SizedBox(width: 16),
-              Expanded(
+              // Top Image Banner (Full Width)
+              if (hasThumbnail)
+                ClipRRect(
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                  child: AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: Image.network(
+                      _resolveImageUrl(rawThumbnail),
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => _buildDefaultBanner(),
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Container(
+                          color: AppColors.brandPrimary.withValues(alpha: 0.08),
+                          child: const Center(
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                )
+              else
+                _buildDefaultBanner(),
+
+              // Card Content Below
+              Padding(
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      topic.name,
-                      style: AppTypography.titleMedium,
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            topic.name,
+                            style: AppTypography.titleMedium.copyWith(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 17,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: AppColors.brandPrimary.withValues(alpha: 0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.arrow_forward_rounded,
+                            size: 18,
+                            color: AppColors.brandPrimary,
+                          ),
+                        ),
+                      ],
                     ),
                     if (topic.description != null && topic.description!.isNotEmpty) ...[
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 6),
                       Text(
                         topic.description!,
-                        style: AppTypography.bodySmall.copyWith(
+                        style: AppTypography.bodyMedium.copyWith(
                           color: Theme.of(context).hintColor,
+                          height: 1.4,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 14),
                     Row(
                       children: [
                         _InfoChip(
                           icon: Icons.school_rounded,
                           label: "${topic.lessonCount} bài",
                         ),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: 10),
                         _InfoChip(
                           icon: Icons.text_fields_rounded,
                           label: "${topic.wordCount} từ",
@@ -150,10 +211,6 @@ class _TopicCard extends StatelessWidget {
                   ],
                 ),
               ),
-              const Icon(
-                Icons.chevron_right_rounded,
-                color: AppColors.brandPrimary,
-              ),
             ],
           ),
         ),
@@ -161,61 +218,23 @@ class _TopicCard extends StatelessWidget {
     );
   }
 
-  Widget _buildTopicIcon(VocabularyTopicModel topic) {
-    final rawThumbnail = topic.thumbnail;
-    final hasThumbnail = rawThumbnail != null && rawThumbnail.trim().isNotEmpty;
-
-    final defaultIcon = Container(
-      width: 56,
-      height: 56,
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
+  Widget _buildDefaultBanner() {
+    return Container(
+      height: 140,
+      width: double.infinity,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
           colors: AppColors.brandGradient,
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      child: const Icon(
-        Icons.book_rounded,
-        color: Colors.white,
-        size: 28,
-      ),
-    );
-
-    if (!hasThumbnail) return defaultIcon;
-
-    final resolvedUrl = _resolveImageUrl(rawThumbnail);
-
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
-      child: SizedBox(
-        width: 56,
-        height: 56,
-        child: Image.network(
-          resolvedUrl,
-          width: 56,
-          height: 56,
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) => defaultIcon,
-          loadingBuilder: (context, child, loadingProgress) {
-            if (loadingProgress == null) return child;
-            return Container(
-              width: 56,
-              height: 56,
-              decoration: BoxDecoration(
-                color: AppColors.brandPrimary.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: const Center(
-                child: SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
-              ),
-            );
-          },
+      child: const Center(
+        child: Icon(
+          Icons.book_rounded,
+          color: Colors.white,
+          size: 48,
         ),
       ),
     );

@@ -17,6 +17,7 @@ class ReadingPassage {
   final int passThreshold; // percentage e.g. 70
   final bool hasQuestions;
   final String status; // draft, published, archived
+  final List<dynamic> allowedPackageIds;
 
   const ReadingPassage({
     required this.id,
@@ -37,6 +38,7 @@ class ReadingPassage {
     this.passThreshold = 70,
     this.hasQuestions = false,
     this.status = 'published',
+    this.allowedPackageIds = const [],
   });
 
   factory ReadingPassage.fromJson(Map<String, dynamic> json) {
@@ -68,6 +70,7 @@ class ReadingPassage {
       passThreshold: (json['passThreshold'] as num?)?.toInt() ?? 70,
       hasQuestions: json['hasQuestions'] ?? false,
       status: (json['status'] ?? 'published').toString(),
+      allowedPackageIds: json['allowedPackageIds'] as List<dynamic>? ?? const [],
     );
   }
 

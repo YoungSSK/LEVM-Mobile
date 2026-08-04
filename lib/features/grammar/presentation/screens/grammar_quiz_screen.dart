@@ -88,8 +88,12 @@ class _GrammarQuizScreenState extends ConsumerState<GrammarQuizScreen> {
             icon: const Icon(Icons.close),
             onPressed: () async {
               final shouldPop = await _onWillPop();
-              if (shouldPop && context.mounted && context.canPop()) {
-                context.pop();
+              if (shouldPop && context.mounted) {
+                if (context.canPop()) {
+                  context.pop();
+                } else {
+                  context.go('/grammar');
+                }
               }
             },
           ),

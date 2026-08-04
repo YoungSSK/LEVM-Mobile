@@ -148,6 +148,16 @@ class _HomeBodyState extends ConsumerState<_HomeBody> {
           color: AppColors.brandTertiary,
         ),
         const SizedBox(height: 24),
+        _buildSectionHeader("Luyện nghe TOEIC", Icons.headphones_rounded),
+        const SizedBox(height: 12),
+        _QuickActionCard(
+          icon: Icons.headphones_rounded,
+          title: "Bài luyện nghe TOEIC",
+          subtitle: "Luyện nghe Part 1, 2, 3 và 4 chuẩn TOEIC",
+          onTap: () => context.push('/listening'),
+          color: const Color(0xFFFF9F43),
+        ),
+        const SizedBox(height: 24),
         _buildSectionHeader("Hồ sơ", Icons.person_rounded),
         const SizedBox(height: 12),
         _QuickActionCard(

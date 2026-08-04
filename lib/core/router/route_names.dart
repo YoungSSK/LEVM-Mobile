@@ -31,4 +31,8 @@ class RouteNames {
   static const String readingDetail = "readingDetail";
   static const String readingQuiz = "readingQuiz";
   static const String readingResult = "readingResult";
+
+  // Listening route names
+  static const String listeningSets = "listeningSets";
+  static const String listeningPlay = "listeningPlay";
 }

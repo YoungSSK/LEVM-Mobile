@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/vip_access_guard.dart';
+import '../../../membership/providers/membership_provider.dart';
 import '../../domain/models/reading_passage.dart';
 import 'cefr_level_badge.dart';
 
-class ReadingCard extends StatelessWidget {
+class ReadingCard extends ConsumerWidget {
   final ReadingPassage passage;
   final VoidCallback onTap;
 
@@ -21,8 +24,18 @@ class ReadingCard extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final membershipState = ref.watch(membershipNotifierProvider);
+    final subscription = membershipState.currentSubscription;
+
+    final isVip = VipAccessHelper.isVipLesson(passage.allowedPackageIds);
+    final hasAccess = VipAccessHelper.hasAccess(
+      subscription: subscription,
+      allowedPackageIds: passage.allowedPackageIds,
+    );
+    final isLocked = isVip && !hasAccess;
+    final requiredPackage = VipAccessHelper.getRequiredPackageName(passage.allowedPackageIds);
 
     return Material(
       color: isDark ? AppColors.darkSurface : AppColors.lightSurface,
@@ -31,7 +44,16 @@ class ReadingCard extends StatelessWidget {
       shadowColor: Colors.black.withValues(alpha: 0.04),
       child: InkWell(
         borderRadius: BorderRadius.circular(20),
-        onTap: onTap,
+        onTap: () {
+          if (isLocked) {
+            VipAccessHelper.showVipLockedToast(
+              context,
+              requiredPackageName: requiredPackage,
+            );
+          } else {
+            onTap();
+          }
+        },
         child: Padding(
           padding: const EdgeInsets.all(14.0),
           child: Row(
@@ -61,7 +83,11 @@ class ReadingCard extends StatelessWidget {
                     Row(
                       children: [
                         CefrLevelBadge(level: passage.cefrLevel),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 6),
+                        if (isVip) ...[
+                          VipLockBadge(packageName: requiredPackage, compact: true),
+                          const SizedBox(width: 6),
+                        ],
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(

@@ -46,7 +46,7 @@ class GrammarTopicModel {
       name: (json["name"] ?? "").toString(),
       slug: (json["slug"] ?? "").toString(),
       description: _stringOrNull(json["description"]),
-      thumbnailUrl: _stringOrNull(json["thumbnailUrl"]),
+      thumbnailUrl: _stringOrNull(json["thumbnail"] ?? json["thumbnailUrl"]),
       // Backend trả về totalLessons hoặc lessonCount
       lessonCount: _intOrDefault(json["totalLessons"] ?? json["lessonCount"]),
       // Backend trả về completedLessons
@@ -111,6 +111,7 @@ class GrammarLessonModel {
   /// Điểm cao nhất đã đạt được.
   final int bestScore;
   final DateTime? createdAt;
+  final List<dynamic> allowedPackageIds;
 
   const GrammarLessonModel({
     required this.id,
@@ -133,6 +134,7 @@ class GrammarLessonModel {
     this.stars = 0,
     this.bestScore = 0,
     this.createdAt,
+    this.allowedPackageIds = const [],
   });
 
   /// Tính số sao dựa trên điểm số và ngưỡng pass.
@@ -168,6 +170,7 @@ class GrammarLessonModel {
       stars: calculateStars(score, passThres),
       bestScore: score,
       createdAt: _dateOrNull(json["createdAt"]),
+      allowedPackageIds: json["allowedPackageIds"] as List<dynamic>? ?? const [],
     );
   }
 
