@@ -81,6 +81,7 @@ class VocabularyLessonModel {
   final int order;
   final bool isActive;
   final DateTime? createdAt;
+  final List<dynamic> allowedPackageIds;
 
   const VocabularyLessonModel({
     required this.id,
@@ -95,6 +96,7 @@ class VocabularyLessonModel {
     this.order = 0,
     this.isActive = true,
     this.createdAt,
+    this.allowedPackageIds = const [],
   });
 
   factory VocabularyLessonModel.fromJson(Map<String, dynamic> json) {
@@ -111,6 +113,7 @@ class VocabularyLessonModel {
       order: _intOrDefault(json["order"]),
       isActive: json["isActive"] ?? true,
       createdAt: _dateOrNull(json["createdAt"]),
+      allowedPackageIds: json["allowedPackageIds"] as List<dynamic>? ?? const [],
     );
   }
 

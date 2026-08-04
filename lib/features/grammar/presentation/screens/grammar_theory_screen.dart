@@ -38,10 +38,12 @@ class GrammarTheoryScreen extends ConsumerWidget {
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () {
-            if (context.canPop()) {
-              context.pop();
-            }
-          },
+              if (context.canPop()) {
+                context.pop();
+              } else {
+                context.go('/grammar');
+              }
+            },
           ),
         ),
         body: Center(
@@ -129,10 +131,12 @@ class _TheoryScreenContentState extends ConsumerState<_TheoryScreenContent> {
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () {
-            if (context.canPop()) {
-              context.pop();
-            }
-          },
+              if (context.canPop()) {
+                context.pop();
+              } else {
+                context.go('/grammar');
+              }
+            },
           ),
           actions: [
             if (lesson.isCompleted)

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/config/app_config.dart';
 import '../../../../core/router/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -22,14 +23,10 @@ class GrammarTopicsScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Ngữ pháp"),
+        title: const Text("Chủ đề ngữ pháp"),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            if (context.canPop()) {
-              context.pop();
-            }
-          },
+          onPressed: () => context.pop(),
         ),
       ),
       body: topicsAsync.when(
@@ -57,6 +54,7 @@ class GrammarTopicsScreen extends ConsumerWidget {
                   child: _TopicCard(
                     name: topic.name,
                     description: topic.description,
+                    thumbnailUrl: topic.thumbnailUrl,
                     lessonCount: topic.lessonCount,
                     completedLessons: topic.completedLessons,
                     progress: topic.progressPercent,
@@ -79,6 +77,7 @@ class GrammarTopicsScreen extends ConsumerWidget {
 class _TopicCard extends StatelessWidget {
   final String name;
   final String? description;
+  final String? thumbnailUrl;
   final int lessonCount;
   final int completedLessons;
   final double progress;
@@ -87,6 +86,7 @@ class _TopicCard extends StatelessWidget {
   const _TopicCard({
     required this.name,
     this.description,
+    this.thumbnailUrl,
     required this.lessonCount,
     required this.completedLessons,
     required this.progress,
@@ -95,66 +95,106 @@ class _TopicCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isCompleted = completedLessons >= lessonCount && lessonCount > 0;
+    final rawThumbnail = thumbnailUrl;
+    final hasThumbnail = rawThumbnail != null && rawThumbnail.trim().isNotEmpty;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Material(
-      color: Theme.of(context).colorScheme.surface,
-      borderRadius: BorderRadius.circular(20),
-      elevation: 0,
-      child: InkWell(
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: Theme.of(context).dividerColor,
-            ),
+        border: Border.all(
+          color: Theme.of(context).dividerColor.withValues(alpha: 0.7),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
-          child: Row(
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(20),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: onTap,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Topic icon
-              Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: AppColors.brandGradient,
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+              // Top Image Banner (Full Width)
+              if (hasThumbnail)
+                ClipRRect(
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                  child: AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: Image.network(
+                      _resolveImageUrl(rawThumbnail),
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => _buildDefaultBanner(),
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Container(
+                          color: AppColors.brandPrimary.withValues(alpha: 0.08),
+                          child: const Center(
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        );
+                      },
+                    ),
                   ),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Icon(
-                  isCompleted ? Icons.check_circle_rounded : Icons.book_rounded,
-                  color: Colors.white,
-                  size: 28,
-                ),
-              ),
-              const SizedBox(width: 16),
-              // Content
-              Expanded(
+                )
+              else
+                _buildDefaultBanner(),
+
+              // Card Content Below
+              Padding(
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      name,
-                      style: AppTypography.titleMedium,
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            name,
+                            style: AppTypography.titleMedium.copyWith(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 17,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: AppColors.brandPrimary.withValues(alpha: 0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.arrow_forward_rounded,
+                            size: 18,
+                            color: AppColors.brandPrimary,
+                          ),
+                        ),
+                      ],
                     ),
                     if (description != null && description!.isNotEmpty) ...[
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 6),
                       Text(
                         description!,
-                        style: AppTypography.bodySmall.copyWith(
+                        style: AppTypography.bodyMedium.copyWith(
                           color: Theme.of(context).hintColor,
+                          height: 1.4,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
-                    const SizedBox(height: 12),
-                    // Progress
+                    const SizedBox(height: 14),
                     GrammarProgressBar(
                       progress: progress,
                       showLabel: true,
@@ -163,16 +203,56 @@ class _TopicCard extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(width: 12),
-              Icon(
-                Icons.chevron_right_rounded,
-                color: AppColors.brandPrimary,
-              ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  Widget _buildDefaultBanner() {
+    return Container(
+      height: 140,
+      width: double.infinity,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: AppColors.brandGradient,
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      child: const Center(
+        child: Icon(
+          Icons.menu_book_rounded,
+          color: Colors.white,
+          size: 48,
+        ),
+      ),
+    );
+  }
+
+  static String _resolveImageUrl(String rawUrl) {
+    String url = rawUrl.trim();
+    if (url.isEmpty) return '';
+
+    final apiBase = AppConfig.baseUrl;
+    if (apiBase.contains('10.0.2.2')) {
+      url = url.replaceAll('localhost', '10.0.2.2').replaceAll('127.0.0.1', '10.0.2.2');
+    }
+
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+
+    final origin = apiBase.endsWith('/api')
+        ? apiBase.substring(0, apiBase.length - 4)
+        : apiBase;
+
+    if (url.startsWith('/')) {
+      return '$origin$url';
+    }
+    return '$origin/$url';
   }
 }
 

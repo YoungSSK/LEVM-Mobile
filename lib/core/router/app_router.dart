@@ -25,6 +25,8 @@ import '../../features/reading/presentation/screens/reading_detail_screen.dart';
 import '../../features/reading/presentation/screens/reading_quiz_screen.dart';
 import '../../features/reading/presentation/screens/reading_result_screen.dart';
 import '../../features/membership/presentation/screens/membership_screen.dart';
+import '../../features/listening/presentation/screens/listening_set_list_screen.dart';
+import '../../features/listening/presentation/screens/listening_play_screen.dart';
 import 'app_routes.dart';
 import 'route_names.dart';
 
@@ -217,6 +219,20 @@ class AppRouter {
         GoRoute(
           path: AppRoutes.membership,
           builder: (context, state) => const MembershipScreen(),
+        ),
+        // Listening routes
+        GoRoute(
+          path: '/listening',
+          name: RouteNames.listeningSets,
+          builder: (context, state) => const ListeningSetListScreen(),
+        ),
+        GoRoute(
+          path: '/listening/play/:id',
+          name: RouteNames.listeningPlay,
+          builder: (context, state) {
+            final setId = state.pathParameters['id'] ?? '';
+            return ListeningPlayScreen(setId: setId);
+          },
         ),
       ],
     );
