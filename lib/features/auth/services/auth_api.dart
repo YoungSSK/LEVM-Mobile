@@ -118,6 +118,7 @@ class AuthApi {
   static Future<void> clearTokens() async {
     await SecureStorageService.delete(StorageKeys.accessToken);
     await SecureStorageService.delete(StorageKeys.refreshToken);
+    await SecureStorageService.delete("role");
   }
 
   // --- helpers -----------------------------------------------------------
